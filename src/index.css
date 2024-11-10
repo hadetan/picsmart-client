@@ -1,3 +1,13 @@
+@font-face {
+  font-family: gilroy;
+  src: url(./assets/fonts/Gilroy.ttf);
+}
+
+@font-face {
+  font-family: dancing;
+  src: url(./assets/fonts/DancingScript-VariableFont_wght.ttf);
+}
+
 * {
   padding: 0;
   margin: 0;
@@ -5,14 +15,45 @@
 }
 
 html, body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: gilroy, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #fafafa;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+:root {
+  --border-color: #dadada;
+  --accent-color: #192A56;
+  --secondary-color: #088eac;
+  --button-color: #2475B0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #0A3D62;
+  user-select: none;
+}
+
+h3, h6 {
+  font-weight: 400;
+}
+
+p {
+  color: #1d5c8a;
+  font-size: 0.9rem;
+}
+
+.hover-link {
+  cursor: pointer;
+  transition: all 0.1s ease-out;
+}
+
+.hover-link:active {
+  color: var(--secondary-color);
 }

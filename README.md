@@ -249,7 +249,136 @@ const RequireUser = () => {
 </Route>
 ```
 
+Now we will fetch a simple demo api in home page like this -
+
+```javascript
+useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            console.log(getItem(KEY_ACCESS_TOKEN));
+            const response = await axiosClient.post('/post/all');
+            console.log('response from backend', response);
+        } catch (err) {
+            console.log(err);
+        }
+    };
+```
+
 By doing this, the user will not be able to access our home page without being logged in.
 
-
 **Now we will go back to server and create new API's**
+
+After setting up the backend, now we can move to frontend part again.
+
+## Creating components
+
+***Updating global css inside of index.css***
+
+```css
+:root {
+  --border-color: #dadada;
+  --accent-color: #192A56;
+  --secondary-color: #088eac;
+  --button-color: #2475B0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #0A3D62;
+  user-select: none;
+}
+
+h3, h6 {
+  font-weight: 400;
+}
+
+p {
+  color: #1d5c8a;
+  font-size: 0.9rem;
+}
+
+.hover-link {
+  cursor: pointer;
+}
+
+.hover-link:active {
+  color: var(--secondary-color);
+}
+```
+
+### Preparing home page with new components
+
+Inside components folder we will create 3 new folders which will have set of js and scss files, 1: feed, 2: navbar, 3: profile, 4: avatar.
+
+1. Inside of navbar we will create our component like this -
+
+```javascript
+const Navbar = () => {
+
+  const navigate = useNavigate();
+
+  return (
+    <div className='Navbar'>
+        <div className='container'>
+            <h2 className='banner hover-link' onClick={() => navigate('/')}>PicsMart</h2>
+            <div className='right-side'>
+                <div className='profile hover-link' onClick={() => navigate('/profile/123')}>
+                    <Avatar />
+                </div>
+            </div>
+        </div>
+    </div>
+  )
+}
+```
+
+```css
+.Navbar {
+    height: 60px;
+    border-bottom: 1px solid var(--border-color);
+
+    .container {
+
+        h2 {
+            font-family: dancing;
+            font-size: 3em;
+        }
+
+        height: 100%;
+        max-width: 960px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-inline: auto;
+    }
+}
+```
+
+2. Now we will create our avatar like this -
+
+```javascript
+const Avatar = ({src}) => {
+  return (
+    <div className='Avatar'>
+        <img src={src ? src : userImg} alt='user avatar'/>
+    </div>
+  )
+}
+```
+
+```css
+.Avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+
+    img {
+        width: 100%;
+        height: 100%;
+    }
+}
+```
+
+To get a default avatar image I used the website `flaticon`.
