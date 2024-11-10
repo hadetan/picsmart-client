@@ -27,7 +27,7 @@ Now lets create two folders inside `src`, pages and components. Inside pages cre
 
 ### SASS
 
-Instead of using plain css we will be using `SASS` which is alot better compared to plain css in big production projects.
+Instead of using plain css we will be using `SASS` which is a lot better compared to plain css in big production projects.
 
 Install SASS -
 
@@ -35,7 +35,7 @@ Install SASS -
 npm i sass
 ```
 
-Now create sass files inside both login & signup folders using `.scss` file extention. After creating both login and signup pages I created home page where I only created the function and exported it.
+Now create sass files inside both login & signup folders using `.scss` file extension. After creating both login and signup pages I created home page where I only created the function and exported it.
 
 In SASS we can nest like this -
 
@@ -110,7 +110,7 @@ What this is basically saying is that, following the CORS policy which says that
 
 After allowing our frontend, and when you do login, it sends the response and when you go to `application -> cookies -> localhost..` you will see the cookie being set with our refresh token which was sent and set by our backend using `cookie-parser` package.
 
-Now we will save this access token which is coming from the response of the API, it is our own responsbility to save the token to the local storage.
+Now we will save this access token which is coming from the response of the API, it is our own responsibility to save the token to the local storage.
 
 We will create a new file which will handle the token to save in the local storage, the file will be named `localStorageManager.js` and inside it we will create three exported functions.
 
@@ -187,7 +187,7 @@ axiosClient.interceptors.response.use(async (response) => {
     return Promise.reject(error);
   }
 
-    // If the statuscode responds with 401 then we will call the refreshtoken API and then check if the status is ok, because if its not ok then it must be because the refreshtoken has been expired (1 year later), if its ok then set new access token recieved from refreshtoken API.
+    // If the statuscode responds with 401 then we will call the refreshtoken API and then check if the status is ok, because if its not ok then it must be because the refreshtoken has been expired (1 year later), if its ok then set new access token received from refreshtoken API.
   if (statusCode === 401) {
     const response = await axiosClient.get('/auth/refreshtoken');
     if (response.status === 'ok') {
@@ -204,6 +204,7 @@ axiosClient.interceptors.response.use(async (response) => {
   return Promise.reject(error);
 });
 ```
+
 Now inside Login.js file, we will create our login post API call -
 
 ```javascript
@@ -227,7 +228,7 @@ const handleSubmit = async (e) => {
 };
 ```
 
-When the user logs in, he will be redirected to home page automatically. Similar thing will happen in Signup.js file, we can just copy and paste this there and customize a little like instead of `/auth/login` we will do `/auth/signup`.
+When the user logs in, he will be redirected to home page automatically. Similar thing will happen in Sign up.js file, we can just copy and paste this there and customize a little like instead of `/auth/login` we will do `/auth/signup`.
 
 We do not want the user to access our Home.js unless they are logged in, so we can protect our route like this -
 
@@ -249,3 +250,6 @@ const RequireUser = () => {
 ```
 
 By doing this, the user will not be able to access our home page without being logged in.
+
+
+**Now we will go back to server and create new API's**
