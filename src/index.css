@@ -29,10 +29,16 @@ code {
 }
 
 :root {
+  --light-color: #979797;
   --border-color: #dadada;
   --accent-color: #192A56;
   --secondary-color: #088eac;
   --button-color: #2475B0;
+}
+
+.container {
+  max-width: 960px;
+  margin-inline: auto;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -56,4 +62,16 @@ p {
 
 .hover-link:active {
   color: var(--secondary-color);
+}
+
+.btn-primary {
+  background-color: var(--accent-color);
+  color: white;
+  font-weight: bold;
+}
+
+.btn-secondary {
+  border: 2px solid var(--accent-color);
+  color: var(--accent-color);
+  font-weight: bold;
 }

@@ -1,0 +1,54 @@
+.Profile {
+	height: calc(100vh - 60px);
+	.container {
+		display: flex;
+		gap: 20px;
+
+		.left-part {
+			flex: 2;
+			// background-color: red;
+		}
+		.right-part {
+			flex: 1;
+			// background: green;
+			margin-top: 20px;
+
+			.profile-card {
+				padding: 20px;
+				border: 1px solid var(--border-color);
+				border-radius: 4px;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				gap: 10px;
+
+				.user-img {
+					width: 80px;
+					height: 80px;
+					border-radius: 50%;
+				}
+
+				.follower-info {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					gap: 20px;
+				}
+
+				.follow {
+					padding: 5px 10px;
+					border-radius: 5px;
+					border: none;
+					font-size: 1.2rem;
+				}
+
+				.update-profile {
+					padding: 5px 10px;
+					border-radius: 5px;
+					font-size: 1.2rem;
+				}
+			}
+		}
+	}
+}

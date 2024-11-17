@@ -285,6 +285,11 @@ After setting up the backend, now we can move to frontend part again.
   --button-color: #2475B0;
 }
 
+.container {
+  max-width: 960px;
+  margin-inline: auto;
+}
+
 h1, h2, h3, h4, h5, h6 {
   color: #0A3D62;
   user-select: none;
@@ -337,7 +342,11 @@ const Navbar = () => {
 ```css
 .Navbar {
     height: 60px;
+    width: 100%;
+    background-color: #fff;
     border-bottom: 1px solid var(--border-color);
+    position:sticky;
+    top: 0;
 
     .container {
 
@@ -347,11 +356,9 @@ const Navbar = () => {
         }
 
         height: 100%;
-        max-width: 960px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-inline: auto;
     }
 }
 ```
@@ -382,3 +389,345 @@ const Avatar = ({src}) => {
 ```
 
 To get a default avatar image I used the website `flaticon`.
+
+Lets create our Feed.js component -
+
+```javascript
+const Feed = () => {
+  return (
+    <div className='Feed'>
+      <div className='container'>
+        <div className="left-part"></div>
+        <div className="right-part"></div>
+      </div>
+    </div>
+  )
+}
+```
+
+```css
+.Feed {
+    height: 100vh;
+    .container {
+        display: flex;
+        // overflow: hidden;
+
+        .left-part {
+            flex: 2;
+            // background-color: red;
+        }
+        .right-part {
+            flex: 1;
+            // background: green;
+            .following {
+                margin-top: 20px;
+                padding-left: 20px;
+            }
+            .suggestion {
+                margin-top: 20px;
+                padding-left: 20px;
+            }
+        }
+    }
+}
+```
+
+Now our Feed has been created, on the left side we will show the posts of users they are following, and on right side we will show them suggestions to follow for.
+
+We will move to post now. Create Post.js and Post.scss -
+
+***For icons we will use react icons website***
+
+```bash
+npm i react-icons --save
+```
+
+```javascript
+const Post = ({ post }) => {
+  return (
+    <div className='Post'>
+      <div className='heading'>
+        <Avatar />
+        <h4>Aquib</h4>
+      </div>
+      <div className='content'>
+        <img
+          src='https://plus.unsplash.com/premium_photo-1673292293042-cafd9c8a3ab3?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+          alt=''
+        />
+      </div>
+      <div className='footer'>
+        <div className='like'>
+          {false ? (
+            <IoMdHeart className='hover-link heart' />
+          ) : (
+            <IoIosHeartEmpty className='hover-link icon' />
+          )}
+          <h4>4 likes</h4>
+        </div>
+        <p className='caption'>This is nature picture</p>
+        <h6 className='time'>4 hours ago</h6>
+      </div>
+    </div>
+  );
+};
+```
+
+```css
+.Post {
+  border: 1px solid var(--border-color);
+  margin-top: 20px;
+  border-radius: 4px;
+  .heading {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    // height: 60px;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .content {
+    height: 400px;
+    img {
+      width: 100%;
+      height: 100%;
+      user-select: none;
+      object-fit: cover;
+      object-position: center;
+    }
+  }
+
+  .footer {
+    padding: 15px 20px;
+
+    .like {
+      display: flex;
+      align-items: start;
+      flex-direction: column;
+      gap: 5px;
+
+      .heart {
+        color: red;
+        font-size: 2rem;
+      }
+
+      .icon {
+        font-size: 2rem;
+      }
+    }
+    .caption {
+      margin-top: 10px;
+    }
+    .time {
+      margin-top: 5px;
+      color: var(--light-color);
+    }
+  }
+}
+
+```
+
+Now lets render the Post few times to see how multiple posts will look like on our home page.
+
+```javascript
+const Feed = () => {
+  return (
+    <div className='Feed'>
+      <div className='container'>
+        <div className='left-part'>
+          <Post />
+          <Post />
+          <Post />
+          <Post />
+          <Post />
+          <Post />
+        </div>
+        <div className='right-part'></div>
+      </div>
+    </div>
+  );
+};
+```
+
+On the right-part of the feed we will create list of users they are following -
+
+```javascript
+<div className='right-part'>
+    <div className='following'>
+      <h3 className='title'>Followings -</h3>
+    </div>
+    <div className='suggestion'>
+      <h3 className='title'>Suggestions -</h3>
+    </div>
+</div>
+```
+
+We will have to create a new component called follower and following -
+
+```javascript
+const Follower = () => {
+  return (
+    <div className='Follower'>
+      <div className='user-info'>
+        <Avatar />
+        <h4 className='name'>Demo1</h4>
+      </div>
+      <h5 className='hover-link follow-link'>Follow</h5>
+    </div>
+  );
+};
+```
+
+```css
+.Follower {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+
+    .user-info {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .follow-link {
+        color: var(--accent-color);
+    }
+}
+```
+
+then add these on the right-part of feed, just for demo -
+
+```javascript
+//Feed.js
+<div className='right-part'>
+    <div className='following'>
+      <h3 className='title'>Followings -</h3>
+      <Follower />
+      <Follower />
+      <Follower />
+      <Follower />
+      <Follower />
+    </div>
+    <div className='suggestion'>
+      <h3 className='title'>Suggestions -</h3>
+      <Follower />
+      <Follower />
+      <Follower />
+      <Follower />
+      <Follower />
+    </div>
+</div>
+```
+
+We will move to Profile.js and scss now -
+
+```javascript
+const Profile = () => {
+    return (
+        <div className='Profile'>
+            <div className='container'>
+                <div className='left-part'>
+                    <Post />
+                    <Post />
+                    <Post />
+                    <Post />
+                </div>
+                <div className='right-part'>
+                    <div className='profile-card'>
+                        <img className='user-img' src={userImg} alt='' />
+                        <h3 className='username'>Aquib Ali</h3>
+                        <div className='follower-info'>
+                            <h4>40 followers</h4>
+                            <h4>12 following</h4>
+                        </div>
+                        <button className='follow btn-primary hover-link'>
+                            Follow
+                        </button>
+                        <button className='update-profile btn-secondary hover-link'>
+                            Update Profile
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+```
+
+We will create two new global style in index.css -
+
+```css
+.btn-primary {
+  background-color: var(--accent-color);
+  color: white;
+  font-weight: bold;
+}
+
+.btn-secondary {
+  border: 2px solid var(--accent-color);
+  color: var(--accent-color);
+  font-weight: bold;
+}
+```
+
+```css
+.Profile {
+    height: calc(100vh - 60px);
+    .container {
+        display: flex;
+        gap: 20px;
+
+        .left-part {
+            flex: 2;
+            // background-color: red;
+        }
+        .right-part {
+            flex: 1;
+            // background: green;
+            margin-top: 20px;
+
+            .profile-card {
+                padding: 40px;
+                border: 1px solid var(--border-color);
+                border-radius: 4px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 10px;
+
+                .user-img {
+                    width: 80px;
+                    height: 80px;
+                    border-radius: 50%;
+                }
+
+                .follower-info {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    gap: 20px;
+                }
+
+                .follow {
+                    padding: 5px 10px;
+                    border-radius: 5px;
+                    border: none;
+                    font-size: 1.2rem;
+                }
+
+                .update-profile {
+                    padding: 5px 10px;
+                    border-radius: 5px;
+                    font-size: 1.2rem;
+                }
+            }
+        }
+    }
+}
+```
