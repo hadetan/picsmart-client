@@ -19,5 +19,24 @@
         align-items: center;
         justify-content: space-between;
         // margin-inline: auto;
+
+        .right-side {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+
+            .logout {
+                font-size: 1.6rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+
+                .logout-text {
+                    color: var(--accent-color);
+                }
+            }
+        }
     }
 }

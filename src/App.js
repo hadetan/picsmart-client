@@ -6,6 +6,7 @@ import Home from './pages/home/Home';
 import RequireUser from './components/RequireUser';
 import Feed from './components/feed/Feed';
 import Profile from './components/profile/Profile';
+import UpdateProfile from './components/updateProfile/UpdateProfile';
 
 const App = () => {
 	return (
@@ -14,6 +15,7 @@ const App = () => {
 				<Route element={<Home />}>
 					<Route path='/' element={<Feed/>}/>
 					<Route path='/profile/:userId' element={<Profile/>}/>
+					<Route path='updateProfile' element={<UpdateProfile />} />
 				</Route>
 			</Route>
 

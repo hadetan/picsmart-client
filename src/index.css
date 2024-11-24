@@ -32,7 +32,9 @@ code {
   --light-color: #979797;
   --border-color: #dadada;
   --accent-color: #192A56;
+  --accent-color2: #334781;
   --secondary-color: #088eac;
+  --secondary-color2: #28b4d3;
   --button-color: #2475B0;
 }
 
@@ -70,8 +72,25 @@ p {
   font-weight: bold;
 }
 
+.btn-primary:hover {
+  background-color: var(--accent-color2);
+}
+
+.btn-primary:active {
+  background-color: var(--accent-color);
+}
+
 .btn-secondary {
   border: 2px solid var(--accent-color);
   color: var(--accent-color);
   font-weight: bold;
+}
+
+.btn-secondary:hover {
+  border: 2px solid var(--accent-color2);
+  color: var(--accent-color2);
+}
+
+.btn-secondary:active {
+  color: var(--secondary-color);
 }

@@ -668,10 +668,27 @@ We will create two new global style in index.css -
   font-weight: bold;
 }
 
+.btn-primary:hover {
+  background-color: var(--accent-color2);
+}
+
+.btn-primary:active {
+  background-color: var(--accent-color);
+}
+
 .btn-secondary {
   border: 2px solid var(--accent-color);
   color: var(--accent-color);
   font-weight: bold;
+}
+
+.btn-secondary:hover {
+  border: 2px solid var(--accent-color2);
+  color: var(--accent-color2);
+}
+
+.btn-secondary:active {
+  color: var(--secondary-color);
 }
 ```
 
@@ -730,4 +747,219 @@ We will create two new global style in index.css -
         }
     }
 }
+```
+
+Lets create a logout button on navbar. To get a logout icon i will again use react icons website.
+
+```javascript
+const Navbar = () => {
+
+  const navigate = useNavigate();
+
+  return (
+    <div className='Navbar'>
+        <div className='container'>
+            <h2 className='banner hover-link' onClick={() => navigate('/')}>PicsMart</h2>
+            <div className='right-side'>
+                <div className='profile hover-link' onClick={() => navigate('/profile/123')}>
+                    <Avatar />
+                </div>
+                <div className="logout hover-link">
+                {/* <BiLogOutCircle /> */}
+                <CiLogout />
+                <p className='logout-text'>logout</p>
+                </div>
+            </div>
+        </div>
+    </div>
+  )
+}
+```
+
+```css
+.container {
+
+    h2 {
+        font-family: dancing;
+        font-size: 3em;
+    }
+
+    height: 100%;
+    // max-width: 960px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    // margin-inline: auto;
+
+    .right-side {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+
+        .logout {
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+
+            .logout-text {
+                color: var(--accent-color);
+            }
+        }
+    }
+}
+```
+
+Now we will install a package to create a progress bar on our application, the name of this package is `react-top-loading-bar`, lets install it -
+
+```bash
+npm i react-top-loading-bar
+```
+
+Just for an example we will add this progress bar in our navbar because we have a logout button in navbar now.
+
+```javascript
+const Navbar = () => {
+  const navigate = useNavigate();
+  //Created these for loading
+  const loadingRef = useRef(null);
+  const [loading, setLoading] = useState(false);
+
+  const toggleLoading = () => {
+    if (loading) {
+      setLoading(false);
+      loadingRef.current.complete();
+    } else {
+      setLoading(true);
+      loadingRef.current.continuousStart();
+    }
+  }
+
+  return (
+    <div className='Navbar'>
+      <LoadingBar height={4} color={"var(--accent-color)"} ref={loadingRef}/>
+        <div className='container'>
+            <h2 className='banner hover-link' onClick={() => navigate('/')}>PicsMart</h2>
+            <div className='right-side'>
+                <div className='profile hover-link' onClick={() => navigate('/profile/123')}>
+                    <Avatar />
+                </div>
+                {/* Loading */}
+                <div className="logout hover-link" onClick={toggleLoading}>
+                <BiLogOutCircle />
+                <p className='logout-text'>logout</p>
+                </div>
+            </div>
+        </div>
+    </div>
+  )
+}
+```
+
+We will now create update profile page -
+
+```javascript
+import React from 'react';
+import './UpdateProfile.scss';
+import userImg from '../../assets/imgs/user.png';
+
+const UpdateProfile = () => {
+  return (
+    <div className='UpdateProfile'>
+      <div className='container'>
+        <div className='leftPart'>
+          <img className='user-img' src={userImg} alt='' />
+        </div>
+        <div className='rightPart'>
+          <form>
+            <input type='text' placeholder='Your Name' />
+            <input type='text' placeholder='Your Bio' />
+
+            <input type='submit' className='btn-primary' />
+          </form>
+          <button className='delete-account btn-primary hover-link'>
+            Delete Account
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default UpdateProfile;
+```
+
+```css
+.UpdateProfile {
+    margin-top: 20px;
+    .container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .leftPart {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .user-img {
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+            }
+        }
+        .rightPart {
+            flex: 3;
+
+            form {
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                padding: 50px;
+            }
+
+            input {
+                display: block;
+                padding: 8px 16px;
+                width: 100%;
+                margin-top: 16px;
+                border-radius: 4px;
+                border: 1px solid var(--border-color);
+            }
+
+            input[type='submit'] {
+                width: fit-content;
+            }
+
+            .delete-account {
+                background-color: red;
+                margin-top: 16px;
+                padding: 8px 16px;
+                border-radius: 4px;
+            }
+        }
+    }
+}
+```
+
+Add new route in app.js -
+
+```javascript
+//app.js
+//below profile route
+<Route path='updateProfile' element={<UpdateProfile />} />
+```
+
+now go to Profile.js to make our update profile button workable -
+
+```javascript
+//profile.js
+const navigate = useNavigate();
+
+//html
+<button className='update-profile btn-secondary hover-link' onClick={() => navigate('/updateProfile')}>
+  Update Profile
+</button>
 ```

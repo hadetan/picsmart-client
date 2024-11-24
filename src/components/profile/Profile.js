@@ -2,8 +2,10 @@ import React from 'react';
 import './Profile.scss';
 import Post from '../post/Post';
 import userImg from '../../assets/imgs/user.png';
+import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
+	const navigate = useNavigate();
 	return (
 		<div className='Profile'>
 			<div className='container'>
@@ -24,7 +26,7 @@ const Profile = () => {
 						<button className='follow btn-primary hover-link'>
 							Follow
 						</button>
-						<button className='update-profile btn-secondary hover-link'>
+						<button className='update-profile btn-secondary hover-link' onClick={() => navigate('/updateProfile')}>
 							Update Profile
 						</button>
 					</div>
