@@ -258,7 +258,7 @@ useEffect(() => {
 
     const fetchData = async () => {
         try {
-            console.log(getItem(KEY_ACCESS_TOKEN));
+          //  console.log(getItem(KEY_ACCESS_TOKEN));
             const response = await axiosClient.post('/post/all');
             console.log('response from backend', response);
         } catch (err) {
@@ -315,7 +315,7 @@ p {
 
 ### Preparing home page with new components
 
-Inside components folder we will create 3 new folders which will have set of js and scss files, 1: feed, 2: navbar, 3: profile, 4: avatar.
+Inside components folder we will create 4 new folders which will have set of js and scss files, 1: feed, 2: navbar, 3: profile, 4: avatar.
 
 1. Inside of navbar we will create our component like this -
 
@@ -962,4 +962,192 @@ const navigate = useNavigate();
 <button className='update-profile btn-secondary hover-link' onClick={() => navigate('/updateProfile')}>
   Update Profile
 </button>
+```
+
+### Updating axios client
+
+In our code -
+
+```javascript
+const response = await axios
+    .create({
+      withCredentials: true,
+      baseURL: 'http://localhost:4000/v1',
+    })
+    .post('/auth/refreshtoken');
+console.log('got the refresh token');
+```
+
+we were not using our axiosClient and recreated new axios, using this we will not be able to refresh the users refresh token so we will have to handle that one more time like this -
+
+```javascript
+if (response.data.status === 'ok') {
+  setItem(KEY_ACCESS_TOKEN, response.data.result.accessToken);
+  originalRequest.headers[
+    'Authorization'
+  ] = `Bearer ${response.data.result.accessToken}`;
+  return axios(originalRequest);
+} else {
+  removeItem(KEY_ACCESS_TOKEN);
+  window.location.replace('/login', '_self');
+  return Promise.reject(errorMessage);
+}
+```
+
+Now we can remove the validation above in axiosClient.js for logging them out, because now that work is being done here.
+
+### Fetching data
+
+To fetch our data we will not pass the data from child to parent. We will use redux to store the data and fetch the data and provide it into our whole app and use the stored data where its needed.
+
+We will create a new folder in src folder called `redux`
+
+```bash
+npm i @reduxjs/toolkit react-redux
+```
+
+Go to redux folder and create a store.js file
+
+```javascript
+import { configureStore } from "@reduxjs/toolkit";
+
+export default configureStore({
+    reducer: {
+        
+    }
+})
+```
+
+Now we will provide the store to our whole app in our index.js file -
+
+```javascript
+<Provider store={store}>
+  <App />
+</Provider>
+```
+
+**Creating slice**
+
+If you remember we had a loading bar on top of our navbar, so if we want it to work on our each and every api calls we will have to handle it with creating a new slice called `appConfigSlice.js` -
+
+```javascript
+import { createSlice } from '@reduxjs/toolkit';
+
+const appConfigSlice = createSlice({
+  name: 'appConfigSlice',
+
+  initialState: {
+    isLoading: false,
+  },
+
+  reducers: {
+    setLoading: (state, action) => {
+      state.isLoading = action.payload;
+    },
+  },
+});
+
+export default appConfigSlice.reducer;
+
+export const { setLoading } = appConfigSlice.actions;
+
+```
+
+and now we can provide this slice into our store we had created -
+
+```javascript
+import { configureStore } from "@reduxjs/toolkit";
+import appConfigReducer from './slices/appConfigSlice.js'
+
+export default configureStore({
+    reducer: {
+        appConfigReducer
+    }
+})
+```
+
+now remove the loader from our navbar and put it in our app.js -
+
+```javascript
+const App = () => {
+  const isLoading = useSelector(state => state.appConfigReducer.isLoading);
+  const loadingRef = useRef(null)
+
+  useEffect(() => {
+    if (isLoading) {
+      loadingRef.current?.continuousStart();
+    } else {
+      loadingRef.current?.complete();
+    }
+  }, [isLoading])
+  return (
+    <div className='App'>
+      <LoadingBar
+        color={'var(--accent-color)'}
+        ref={loadingRef}
+      />
+  // continue ---->>
+```
+
+lets check if our logic is working or not, lets go back to navbar.js and do this -
+
+```javascript
+// Navbar.js
+const dispatch = useDispatch();
+
+const toggleLoading = () => {
+  dispatch(setLoading(true));
+}
+```
+
+## go back to server
+
+Now after returning from server we can continue.
+
+### Fetching data with redux thunk
+
+we will go to our appConfigSlice.js and fetch our data like this -
+
+```javascript
+export const getMyInfo = createAsyncThunk('user/getMyInfo', async (body, thunkAPI) => {
+  try {
+    thunkAPI.dispatch(setLoading(true));
+    const response = await axiosClient.get('/user/getMyInfo');
+    console.log('data fetched', response.result);
+        return response.result
+  } catch (err) { 
+    return Promise.reject(err);
+  } finally {
+    thunkAPI.dispatch(setLoading(false));
+}
+});
+```
+
+Now to check if this is working fine or not, we will go to home.js and call this function.
+
+```javascript
+const dispatch = useDispatch();
+
+useEffect(() => {
+  dispatch(getMyInfo());
+}, [])
+```
+
+We are successfully getting the data, now we can save the data in our redux, we will go to appConfigSlice and inside of reducers we will add this -
+
+```javascript
+initialState: {
+  isLoading: false,
+  myProfile: {} //added
+},
+```
+
+now we will create `extraReducers` in our appConfigSlice.js -
+
+```javascript
+extraReducers: (builder) => {
+    builder.addCase(getMyInfo.fulfilled, (state, action) => {
+        state.myProfile = action.payload.user
+    })
+}
 ```

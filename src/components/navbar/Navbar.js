@@ -4,26 +4,20 @@ import Avatar from '../avatar/Avatar'
 import { useNavigate } from 'react-router-dom'
 import { BiLogOutCircle } from 'react-icons/bi'
 import LoadingBar from 'react-top-loading-bar'
+import { useDispatch, useSelector } from 'react-redux'
+import { setLoading } from '../../redux/slices/appConfigSlice'
 
 const Navbar = () => {
   const navigate = useNavigate();
-  //Created these for loading
-  const loadingRef = useRef(null);
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const myProfile = useSelector(state => state.appConfigReducer.myProfile);
 
   const toggleLoading = () => {
-    if (loading) {
-      setLoading(false);
-      loadingRef.current.complete();
-    } else {
-      setLoading(true);
-      loadingRef.current.continuousStart();
-    }
+    dispatch(setLoading(true));
   }
 
   return (
     <div className='Navbar'>
-      <LoadingBar height={4} color={"var(--accent-color)"} ref={loadingRef}/>
         <div className='container'>
             <h2 className='banner hover-link' onClick={() => navigate('/')}>PicsMart</h2>
             <div className='right-side'>
