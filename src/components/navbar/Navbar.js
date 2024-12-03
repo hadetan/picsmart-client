@@ -3,17 +3,14 @@ import './Navbar.scss'
 import Avatar from '../avatar/Avatar'
 import { useNavigate } from 'react-router-dom'
 import { BiLogOutCircle } from 'react-icons/bi'
-import LoadingBar from 'react-top-loading-bar'
 import { useDispatch, useSelector } from 'react-redux'
-import { setLoading } from '../../redux/slices/appConfigSlice'
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const myProfile = useSelector(state => state.appConfigReducer.myProfile);
 
-  const toggleLoading = () => {
-    dispatch(setLoading(true));
+  const handleLogout = () => {
+              
   }
 
   return (
@@ -21,11 +18,11 @@ const Navbar = () => {
         <div className='container'>
             <h2 className='banner hover-link' onClick={() => navigate('/')}>PicsMart</h2>
             <div className='right-side'>
-                <div className='profile hover-link' onClick={() => navigate('/profile/123')}>
-                    <Avatar />
+                <div className='profile hover-link' onClick={() => navigate(`/profile/${myProfile?._id}`)}>
+                    <Avatar src={myProfile?.avatar?.url} />
                 </div>
                 {/* Loading */}
-                <div className="logout hover-link" onClick={toggleLoading}>
+                <div className="logout hover-link" onClick={handleLogout}>
                 <BiLogOutCircle />
                 <p className='logout-text'>logout</p>
                 </div>

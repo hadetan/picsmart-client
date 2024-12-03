@@ -9,10 +9,11 @@ import Profile from './components/profile/Profile';
 import UpdateProfile from './components/updateProfile/UpdateProfile';
 import LoadingBar from 'react-top-loading-bar';
 import { useSelector } from 'react-redux';
+import NotLoggedIn from './components/NotLoggedIn';
 
 const App = () => {
-	const isLoading = useSelector(state => state.appConfigReducer.isLoading);
-	const loadingRef = useRef(null)
+	const isLoading = useSelector((state) => state.appConfigReducer.isLoading);
+	const loadingRef = useRef(null);
 
 	useEffect(() => {
 		if (isLoading) {
@@ -20,13 +21,10 @@ const App = () => {
 		} else {
 			loadingRef.current?.complete();
 		}
-	}, [isLoading])
+	}, [isLoading]);
 	return (
 		<div className='App'>
-			<LoadingBar
-				color={'var(--accent-color)'}
-				ref={loadingRef}
-			/>
+			<LoadingBar color={'var(--accent-color)'} ref={loadingRef} />
 			<Routes>
 				<Route element={<RequireUser />}>
 					<Route element={<Home />}>
@@ -39,8 +37,10 @@ const App = () => {
 					</Route>
 				</Route>
 
-				<Route path='/login' element={<Login />} />
-				<Route path='/signup' element={<Signup />} />
+				<Route element={<NotLoggedIn />}>
+					<Route path='/login' element={<Login />} />
+					<Route path='/signup' element={<Signup />} />
+				</Route>
 			</Routes>
 		</div>
 	);

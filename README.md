@@ -1151,3 +1151,583 @@ extraReducers: (builder) => {
     })
 }
 ```
+
+Now lets use our data which we have fetched `myProfile`.
+
+Firstly let us go to our navbar.js and use our data -
+
+```javascript
+//navbar.js
+const myProfile = useSelector(state => state.appConfigReducer.myProfile);
+
+<Avatar src={myProfile?.avatar?.url} />
+```
+
+For now we have not implemented cloudinary database in our backend so we will not be able to see the data being changed.
+
+**Delete the toggle loading bar function from our navbar.js.**
+
+```javascript
+const handleLogout = () => {
+    
+}
+
+<div className="logout hover-link" onClick={handleLogout}> ...
+```
+
+Update go to profile from navbar -
+
+```javascript
+//previously
+<div className='profile hover-link' onClick={() => navigate('/profile/123')}>
+    <Avatar src={myProfile?.avatar?.url} />
+</div>
+
+//updated
+<div className='profile hover-link' onClick={() => navigate(`/profile/${myProfile?._id}`)}>
+    <Avatar src={myProfile?.avatar?.url} />
+</div>
+```
+
+Now update our `update profile` page -
+
+```javascript
+//UpdateProfile.js
+const myProfile = useSelector(state => state.appConfigReducer.myProfile);
+const [name, setName] = useState("")
+const [bio, setBio] = useState("")
+const [userImg, setUserImg] = useState("");
+const dispatch = useDispatch();
+useEffect(() => {
+  setName(myProfile?.name || "");
+  setBio(myProfile?.bio || "");
+  setUserImg(myProfile?.avatar?.url || "")
+}, [myProfile]);
+
+const handleImageChange = (e) => {
+  //choose file from array
+  const file = e.target.files[0];
+  //create new file reader
+  const fileReader = new FileReader();
+  //pass the file to the file reader
+  fileReader.readAsDataURL(file);
+  //if file has done pushing, set it to our useState
+  fileReader.onload = () => {
+    if (fileReader.readyState === fileReader.DONE) {
+      setUserImg(fileReader.result);
+    }
+  };
+};
+
+
+
+//remove the img tag and replace it with this -
+<div className="input-user-img">
+  <label htmlFor="inputImg" className='labelImg'>
+    <img src={userImg} alt={name} />
+  </label>
+  <input id='inputImg' className='userImg' type="file" accept='image/*'onChange={handleImageChange}/>
+</div>
+
+<form onSubmit={handleSubmit}> ...
+<input type='submit' className='btn-primary' onClick={handleSubmit} />
+...
+
+<input value={name} type='text' placeholder='Your Name' onChange={(e) => setName(e.target.value)}/>
+<input value={bio} type='text' placeholder='Your Bio' onChange={(e) => setBio(e.target.value)}/>
+```
+
+Now lets update the `updateProfile.scss`
+
+```css
+.leftPart {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .input-user-img {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .labelImg {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px dashed var(--accent-color);
+            cursor: pointer;
+
+            img {
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+        }
+
+        .userImg {
+            display: none;
+        }
+    }
+}
+```
+
+**Go back to server**
+
+lets create another async thunk in our appConfigSlice -
+
+```javascript
+export const updateMyProfile = createAsyncThunk(
+  'user/updateMyProfile',
+  async (body, thunkAPI) => {
+    try {
+      thunkAPI.dispatch(setLoading(true));
+      const response = await axiosClient.put('/user/', body);
+
+      return response.result;
+    } catch (err) {
+      return Promise.reject(err);
+    } finally {
+      thunkAPI.dispatch(setLoading(false));
+    }
+  }
+);
+```
+
+and add another case -
+
+```javascript
+.addCase(updateMyProfile.fulfilled, (state, action) => {
+  state.myProfile = action.payload?.user;
+});
+```
+
+go back to updateProfile.js
+
+```javascript
+const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(
+      updateMyProfile({
+        name,
+        bio,
+        userImg,
+      })
+    );
+};
+```
+
+Now create a CreatePost folder in components and file of js and scss -
+
+```javascript
+const [postImg, setPostImg] = useState('');
+const [caption, setCaption] = useState('');
+const dispatch = useDispatch();
+const myProfile = useSelector((state) => state.appConfigReducer.myProfile);
+
+const handleImageChange = (e) => {
+    try {
+        const file = e.target.files[0];
+        const fileReader = new FileReader();
+        fileReader.readAsDataURL(file);
+        fileReader.onload = () => {
+            if (fileReader.readyState === fileReader.DONE) {
+                setPostImg(fileReader.result);
+            }
+        };
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+const handlePostSubmit = async () => {
+    try {
+        dispatch(setLoading(true));
+        const result = await axiosClient.post('/post/', {
+            caption,
+            postImg,
+        });
+
+        console.log("post posted", result);
+    } catch (error) {
+    } finally {
+        setCaption('');
+        setPostImg('');
+        dispatch(setLoading(false));
+    }
+};
+
+<div className='CreatePost'>
+    <div className="createPost">
+        <div className="left-part">
+            <Avatar src={myProfile?.avatar?.url} />
+        </div>
+        <div className="right-part">
+            {postImg && (
+                <div className="img-container">
+                    <img
+                        className="post-img"
+                        src={postImg}
+                        alt={myProfile?.name}
+                    />
+                </div>
+            )}
+
+            <input
+                type="text"
+                className="captionInput"
+                placeholder="What's on your mind?"
+                value={caption || ''}
+                onChange={(e) => setCaption(e.target.value)}
+            />
+
+            <div className="bottom-part">
+                <div className="input-post-img">
+                    <label htmlFor="inputImg" className="labelImg btn-primary">
+                        <BsCardImage />
+                    </label>
+                    <input
+                        id="inputImg"
+                        className="inputImg"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                    />
+                </div>
+                <button
+                    className="post-btn btn-primary"
+                    onClick={handlePostSubmit}
+                >
+                    Post
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+```css
+.createPost {
+    display: flex;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 20px;
+    gap: 20px;
+    margin-top: 20px;
+
+    .left-part {
+        flex-grow: 0;
+        flex-shrink: 0;
+        flex-basis: content;
+        // margin-top: 40px;
+    }
+
+    .right-part {
+        flex-grow: 100 !important;
+        margin-top: 0;
+        padding: 0;
+        padding: 20px;
+
+        .captionInput {
+            border: 1px solid var(--border-color);
+            // display: block;
+        }
+
+        .img-container {
+            margin-top: 20px;
+
+            .post-img {
+                width: 100%;
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+            }
+        }
+
+        .labelImg {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-top: 10px;
+        }
+
+        .inputImg {
+            display: none;
+        }
+
+        .bottom-part {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+
+            .post-btn {
+                border: none;
+                border-radius: 6px;
+                padding: 10px 15px;
+            }
+        }
+    }
+}
+```
+
+Now render this in our Profile.js -
+
+```javascript
+<div className='left-part'>
+  <CreatePost />...
+  <Post />
+  <Post />
+  <Post />
+  <Post />
+</div>
+```
+
+
+**go back to server**
+
+Create a new slice called postsSlice.js -
+
+```javascript
+export const getUserProfile = createAsyncThunk(
+    'user/getUserProfile',
+    async (body, thunkAPI) => {
+        try {
+            thunkAPI.dispatch(setLoading(true));
+            const response = await axiosClient.post('/user/getUserProfile', body);
+            console.log('data fetched', response.result);
+            return response.result;
+        } catch (err) {
+            return Promise.reject(err);
+        } finally {
+            thunkAPI.dispatch(setLoading(false));
+        }
+    }
+);
+
+const postSlice = createSlice({
+    name: 'postSlice',
+
+    initialState: {
+        userProfile: {}
+    },
+
+    extraReducers: (builder) => {
+        builder.addCase(getUserProfile.fulfilled, (state, action) => {
+            state.userProfile = action.payload;
+        });
+    },
+});
+
+export default postSlice.reducer;
+```
+
+Now lets work on the Profile.js file -
+
+```javascript
+const Profile = () => {
+    const navigate = useNavigate();
+    const params = useParams();
+    const dispatch = useDispatch();
+    const userProfile = useSelector((state) => state.postReducer.userProfile);
+    const myProfile = useSelector((state) => state.appConfigReducer.myProfile);
+    const [isMyProfile, setIsMyProfile] = useState(false);
+
+    useEffect(() => {
+        dispatch(
+            getUserProfile({
+                userId: params.userId,
+            })
+        );
+
+        setIsMyProfile(myProfile?._id === params.userId);
+    }, [myProfile]);
+
+    return (
+        <div className='Profile'>
+            <div className='container'>
+                <div className='left-part'>
+                    <CreatePost />
+                    <Post post={userProfile?.posts} />
+                </div>
+                <div className='right-part'>
+                    <div className='profile-card'>
+                        <img
+                            className='user-img'
+                            src={userProfile?.avatar?.url || userImg}
+                            alt={userProfile.name}
+                        />
+                        <h3 className='username'>{userProfile?.name}</h3>
+                        <div className='follower-info'>
+                            <h4>{userProfile?.followers?.length} followers</h4>
+                            <h4>{userProfile?.followings?.length} following</h4>
+                        </div>
+                        {!isMyProfile && (
+                            <button className='follow btn-primary hover-link'>
+                                Follow
+                            </button>
+                        )}
+
+                        {isMyProfile && (
+                            <button
+                                className='update-profile btn-secondary hover-link'
+                                onClick={() => navigate('/updateProfile')}
+                            >
+                                Update Profile
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+```
+
+The user is able to go to the login page even after being logged in and its not a good practice to let them do whatever they want! So for that we will need to handle it with a simple trick -
+
+1. Create a new file in our components folder just as requireUser.js, lets name it notLoggedIn.js -
+
+```javascript
+const NotLoggedIn = () => {
+    const user = getItem(KEY_ACCESS_TOKEN);
+
+  return (
+    <div>
+        {user ? <Navigate to="/"/> : <Outlet />}
+    </div>
+  )
+}
+```
+
+now go back to app.js and wrap your signup and login routes inside of NotLoggedIn Route -
+
+```javascript
+<Route element={<NotLoggedIn />}>
+  <Route path='/login' element={<Login />} />
+  <Route path='/signup' element={<Signup />} />
+</Route>
+```
+
+Now add one more line in our createpost.js -
+
+```javascript
+const handlePostSubmit = async () => {
+    try {
+    dispatch(setLoading(true));
+    const result = await axiosClient.post('/post/', {
+        caption,
+        postImg,
+    });
+    dispatch(getUserProfile({
+        userId: myProfile?._id
+    })); ....
+```
+
+We are doing this because when the user creates a new post they will have to reload the page in order to get the newest post in their profile. So in order to automate this process we fetched the data again with one more post that user has created at the moment.
+
+Now lets render the posts of the current user that is being visited in our profile.js file -
+
+```javascript
+{userProfile?.posts?.map((post) => {
+    return <Post post={post} key={post._id}/>
+})}
+```
+
+Now lets handle post.js -
+
+```javascript
+return (
+    <div className='Post'>
+        <div className='heading'>
+            <Avatar src={post?.owner?.avatar?.url}/>
+            <h4>{post?.owner?.name}</h4>
+        </div>
+        <div className='content'>
+            <img
+                src={post?.image?.url || 'https://plus.unsplash.com/premium_photo-1673292293042-cafd9c8a3ab3?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'}
+                alt={post?.owner?.name}
+            />
+        </div>
+        <div className='footer'>
+            <div className='like'>
+                {false ? (
+                    <IoMdHeart className='hover-link heart' />
+                ) : (
+                    <IoIosHeartEmpty className='hover-link icon' />
+                )}
+                <h4>{post?.likesCount} likes</h4>
+            </div>
+            <p className='caption'>{post?.caption}</p>
+            <h6 className='time'>{post?.timeAgo}</h6>
+        </div>
+</div>
+);
+```
+
+**Go back to server** 
+
+now we will create another asyncThunk in postslice.js for liking and unliking -
+
+```javascript
+export const likeAndUnlike = createAsyncThunk(
+    'post/likeAndUnlike',
+    async (body, thunkAPI) => {
+        try {
+            thunkAPI.dispatch(setLoading(true));
+            const response = await axiosClient.post('/post/like', body);
+            return response.result.post;
+        } catch (err) {
+            return Promise.reject(err);
+        } finally {
+            thunkAPI.dispatch(setLoading(false));
+        }
+    }
+);
+```
+
+updating our Post.js again -
+
+```javascript
+const dispatch = useDispatch();
+    const handlePostLike = async () => {
+        dispatch(
+            likeAndUnlike({
+                postId: post?._id,
+            })
+    );
+};
+```
+
+lets add another case in postslice -
+
+```javascript
+.addCase(likeAndUnlike.fulfilled, (state, action) => {
+    const post = action.payload;
+    console.log("liked?", post);
+    const index = state.userProfile.posts.findIndex(item => item._id === post._id)
+    if (index !== -1) {
+        state.userProfile.posts[index] = post;
+    }
+})
+```
+
+now we can update our post with red heart if liked -
+
+```javascript
+{post?.isLiked ? ( ....
+```

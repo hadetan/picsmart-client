@@ -68,4 +68,6 @@ axiosClient.interceptors.response.use(async (response) => {
 	
 	// If theres any other type of error, then just reject the promise with the error variable which is holding our error message.
 	return Promise.reject(errorMessage);
+}, async (err) => {
+	console.log(err);
 });
